@@ -1,3 +1,6 @@
+# Enable scripts
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+
 # 1. Check for Administrator Privileges
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
     Write-Warning "This script requires Administrator privileges. Please run PowerShell as Administrator."
@@ -77,11 +80,11 @@ if (Get-Module -ListAvailable -Name "Storage") {
     try {
         Optimize-Volume -DriveLetter C -Verbose
         Write-Host "Drive optimization complete." -ForegroundColor Green
-    } 
+    }
     catch {
         Write-Error "Failed to execute Optimize-Volume. $_"
     }
-} 
+}
 else {
     Write-Warning "The 'Storage' module is not available on this system. Skipping optimization."
 }
@@ -92,13 +95,14 @@ Write-Host "`n[4/4] Triggering Windows Updates..." -ForegroundColor Yellow
 # Check for Windows Update module
 if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) {
     Write-Host "PSWindowsUpdate module not found. Installing now..." -ForegroundColor Cyan
-    
-    # Install the NuGet provider if missing
+    # Trust the NuGet and PSGallery to prevent untrusted prompt
+    Get-PSRepository -Name 'NuGet' | Set-PSRepository -InstallationPolicy Trusted
+    Get-PSRepository -Name 'PSGallery' | Set-PSRepository -InstallationPolicy Trusted
+    # Install the NuGet provider
     Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
-    
     # Install the module from the PSGallery
     Install-Module -Name PSWindowsUpdate -Force -AllowClobber -Scope CurrentUser
-} 
+}
 else {
     Write-Host "PSWindowsUpdate module is already installed." -ForegroundColor Green
 }
@@ -121,3 +125,4 @@ Write-Host "`n--- Maintenance Complete: $(Get-Date) ---" -ForegroundColor Cyan
 
 # Stop recording
 Stop-Transcript
+

@@ -1,15 +1,3 @@
-﻿<#
-.SYNOPSIS
-    Automated Windows System Maintenance Script with Logging
-.DESCRIPTION
-    1. Checks for Administrator privileges.
-    2. Logs all activity to C:\Data\Maintenance\Maintenance_yyyyMMdd-HHmm.txt
-    3. Cleans User and System Temporary files.
-    4. Configures and runs Disk Cleanup.
-    5. Checks for 'Storage' module and Optimizes C: drive.
-    6. Configures and runs Windows Updates.
-#>
-
 # 1. Check for Administrator Privileges
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
     Write-Warning "This script requires Administrator privileges. Please run PowerShell as Administrator."
@@ -120,6 +108,7 @@ Add-WUServiceManager -ServiceID 7971f918-a847-4430-9279-4a52d1efe18d
 
 try {
     Get-WUInstall -MicrosoftUpdate -Category "Security Updates" -AcceptAll
+
     Get-WUInstall -MicrosoftUpdate -Category "Critical Updates" -AcceptAll
 
     Write-Host "Windows Update scan and install triggered successfully." -ForegroundColor Green
